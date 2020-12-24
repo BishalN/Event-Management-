@@ -2,12 +2,13 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { graphqlHTTP } from 'express-graphql';
 import { buildSchema } from 'graphql';
+import mongoose from 'mongoose';
+
+import Event from './models/event.js';
 
 const app = express();
 
 app.use(bodyParser.json());
-
-const events = [];
 
 app.use(
   '/graphql',
@@ -42,22 +43,37 @@ app.use(
     `),
     rootValue: {
       events: () => {
-        return events;
+        return Event.find({});
       },
       createEvent: (args) => {
-        const event = {
-          _id: Math.random().toString(),
+        const event = new Event({
           title: args.eventInput.title,
           description: args.eventInput.description,
           price: +args.eventInput.price,
-          date: args.eventInput.date,
-        };
-        events.push(event);
-        return event;
+          date: new Date(args.eventInput.date),
+        });
+        return event
+          .save()
+          .then((result) => {
+            return { ...result._doc };
+          })
+          .catch((error) => {
+            console.log(error);
+            throw new error();
+          });
       },
     },
     graphiql: true,
   })
 );
 
-app.listen(8080);
+mongoose
+  .connect(
+    'mongodb+srv://bishal:bishal123@cluster0.rsgxl.mongodb.net/event?retryWrites=true&w=majority',
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => app.listen(3000))
+  .catch((error) => {
+    console.log('hell');
+    console.log(error.message);
+  });
