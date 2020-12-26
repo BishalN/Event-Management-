@@ -5,10 +5,13 @@ import mongoose from 'mongoose';
 
 import schema from './graphql/schema/index.js';
 import rootValue from './graphql/resolvers/index.js';
+import isAuth from './graphql/middleware/is-auth.js';
 
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use(isAuth);
 
 app.use(
   '/graphql',

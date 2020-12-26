@@ -10,17 +10,18 @@ export default {
     });
   },
 
-  createEvent: async (args) => {
+  createEvent: async (args, req) => {
     try {
+      if (!req.isAuth) throw new Error('UnAuthorized!');
       const event = new Event({
         title: args.eventInput.title,
         description: args.eventInput.description,
         price: +args.eventInput.price,
         date: new Date(args.eventInput.date).toISOString(),
-        creator: '5fe566fd1e793b197c4b5a73',
+        creator: req.userId,
       });
       const createdEvent = await event.save();
-      const foundUser = await User.findById('5fe566fd1e793b197c4b5a73');
+      const foundUser = await User.findById(req.userId);
       foundUser.createdEvents.push(createdEvent);
       await foundUser.save();
       return {
