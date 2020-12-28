@@ -21,11 +21,9 @@ function App() {
       <Switch>
         <Route path='/events' component={EventPage}></Route>
         <Route path='/auth' component={AuthPage}></Route>
-
+        {userInfo && <Redirect from='/auth' to='/events'></Redirect>}
         {userInfo && <Route path='/bookings' component={BookingPage}></Route>}
         {!userInfo && <Redirect to='/auth' exact></Redirect>}
-        {!userInfo && <Route path='/auth' component={AuthPage}></Route>}
-        {userInfo && <Redirect from='/auth' to='/events'></Redirect>}
         {userInfo && <Redirect from='/' to='/events'></Redirect>}
       </Switch>
     </Router>
