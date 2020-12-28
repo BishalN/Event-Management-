@@ -1,47 +1,22 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import { Form, Button } from 'react-bootstrap';
 
 import FormContainer from '../components/FormContainer';
+import { login, register } from '../actions/auth';
 
 const AuthPage = () => {
+  const dispatch = useDispatch();
   const [emailAddress, setEmailAddress] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
-    let requestBody = {
-      query: `
-        query {
-          login(email:"${emailAddress}",password:"${password}"){
-            userId,
-            token,
-            tokenExpiration
-          }
-        }
-      `,
-    };
-
     if (!isLogin) {
-      requestBody = {
-        query: ` mutation {createUser(userInput:{email:"${emailAddress}",password:"${password}"}){_id email
-          }
-        }
-        `,
-      };
+      return dispatch(register(emailAddress, password));
     }
-
-    fetch('http://localhost:8000/graphql', {
-      method: 'POST',
-      body: JSON.stringify(requestBody),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data));
+    dispatch(login(emailAddress, password));
   };
 
   return (
