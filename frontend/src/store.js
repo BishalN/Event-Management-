@@ -3,10 +3,12 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import thunk from 'redux-thunk';
 
 import { userLoginReducer, userRegisterReducer } from './reducers/auth';
+import { createEventReducer } from './reducers/events';
 
 const reducer = combineReducers({
   userLogin: userLoginReducer,
   userRegister: userRegisterReducer,
+  createEvent: createEventReducer,
 });
 
 const initialState = {};

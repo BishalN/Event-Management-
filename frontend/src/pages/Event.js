@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { Button, Modal, Form } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { createEvent } from '../actions/events';
 
 const EventPage = () => {
+  const dispatch = useDispatch();
+
+  const createEvent = useSelector((state) => state.createEvent);
+  const { event } = createEvent;
+
+  console.log(event);
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState(0);
@@ -15,7 +24,7 @@ const EventPage = () => {
     e.preventDefault();
     setPrice(parseFloat(price));
     const event = { title, price, description, date };
-    console.log(event);
+    dispatch(createEvent(event));
   };
   return (
     <>
