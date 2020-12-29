@@ -19,9 +19,9 @@ function App() {
     <Router>
       <Header />
       <Switch>
+        {userInfo && <Redirect from='/auth' to='/events'></Redirect>}
         <Route path='/events' component={EventPage}></Route>
         <Route path='/auth' component={AuthPage}></Route>
-        {userInfo && <Redirect from='/auth' to='/events'></Redirect>}
         {userInfo && <Route path='/bookings' component={BookingPage}></Route>}
         {!userInfo && <Redirect to='/auth' exact></Redirect>}
         {userInfo && <Redirect from='/' to='/events'></Redirect>}

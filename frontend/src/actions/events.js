@@ -7,6 +7,9 @@ import {
   GET_EVENT_FAIL,
   GET_EVENT_REQUEST,
   GET_EVENT_SUCCESS,
+  BOOK_EVENT_FAIL,
+  BOOK_EVENT_REQUEST,
+  BOOK_EVENT_SUCCESS,
 } from '../constants/eventConstants';
 
 export const createEvent = (event) => async (dispatch, getState) => {
@@ -81,5 +84,35 @@ export const getEvents = () => async (dispatch) => {
     dispatch({ type: GET_EVENT_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: GET_EVENT_FAIL, payload: error });
+  }
+};
+
+export const bookEvent = (eventId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: BOOK_EVENT_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const { data } = await axios({
+      method: 'POST',
+      url: 'http://localhost:8000/graphql',
+      headers: {
+        Authorization: 'Bearer ' + userInfo.data.login.token,
+      },
+      data: {
+        query: `
+        mutation {
+          bookEvent(eventId:{ID:"${eventId}"}){
+           _id
+        }
+        `,
+      },
+    });
+
+    dispatch({ type: BOOK_EVENT_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: BOOK_EVENT_FAIL, payload: error });
   }
 };

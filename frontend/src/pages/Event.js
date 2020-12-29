@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Form, Card, Row, Col } from 'react-bootstrap';
+import { Button, Modal, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { createEvent, getEvents } from '../actions/events';
+import EventItemCard from '../components/EventItemCard';
 
 const EventPage = () => {
   const dispatch = useDispatch();
@@ -11,12 +12,11 @@ const EventPage = () => {
   const { userInfo } = userLogin;
 
   const createEvents = useSelector((state) => state.createEvent);
-  const { success } = createEvents;
+  const { event: createdEvent } = createEvents;
 
   const getEventsFromStore = useSelector((state) => state.getEvents);
   const { events: fetchedEvents } = getEventsFromStore;
 
-  console.log(fetchedEvents);
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState(0);
@@ -31,19 +31,17 @@ const EventPage = () => {
     if (!fetchedEvents) {
       dispatch(getEvents());
     }
-    if (success) {
-      dispatch(getEvents());
-    }
     if (fetchedEvents) {
       setEvents([...fetchedEvents.data.events]);
     }
-  }, [success, dispatch, fetchedEvents]);
+  }, [dispatch, fetchedEvents, createdEvent]);
 
   const eventSubmitHandler = (e) => {
     e.preventDefault();
     const event = { title, price, description, date };
     console.log(event);
     dispatch(createEvent(event));
+    dispatch(getEvents());
   };
   return (
     <>
@@ -53,7 +51,7 @@ const EventPage = () => {
           onClick={handleShow}
           style={{ margin: '20px' }}
         >
-          Launch static backdrop modal
+          Create an Event
         </Button>
       )}
 
@@ -122,18 +120,16 @@ const EventPage = () => {
         </Modal.Footer>
       </Modal>
 
-      {events.map((event) => (
-        <Row sm={12} md={6} xl={4}>
-          <Col>
-            <Card style={{ width: '18rem', margin: 30 }}>
-              <Card.Body>
-                <Card.Title>{event.title}</Card.Title>
-                <Card.Text>{event.description}</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      ))}
+      <Row sm={12} md={6} xl={4} className='m-2'>
+        {events.map((event) => (
+          <EventItemCard
+            event={event}
+            isCreator={
+              userInfo && event.creator._id === userInfo.data.login.userId
+            }
+          />
+        ))}
+      </Row>
     </>
   );
 };
