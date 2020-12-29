@@ -1,36 +1,61 @@
-import React, { useState } from 'react';
-import { Button, Modal, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Modal, Form, Card, Row, Col } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createEvent } from '../actions/events';
+import { createEvent, getEvents } from '../actions/events';
 
 const EventPage = () => {
   const dispatch = useDispatch();
 
-  const createEvent = useSelector((state) => state.createEvent);
-  const { event } = createEvent;
+  const userLogin = useSelector((state) => state.userLogin);
+  const { userInfo } = userLogin;
 
-  console.log(event);
+  const createEvents = useSelector((state) => state.createEvent);
+  const { success } = createEvents;
+
+  const getEventsFromStore = useSelector((state) => state.getEvents);
+  const { events: fetchedEvents } = getEventsFromStore;
+
+  console.log(fetchedEvents);
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState('');
   const [date, setDate] = useState();
+  const [events, setEvents] = useState([]);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  useEffect(() => {
+    if (!fetchedEvents) {
+      dispatch(getEvents());
+    }
+    if (success) {
+      dispatch(getEvents());
+    }
+    if (fetchedEvents) {
+      setEvents([...fetchedEvents.data.events]);
+    }
+  }, [success, dispatch, fetchedEvents]);
+
   const eventSubmitHandler = (e) => {
     e.preventDefault();
-    setPrice(parseFloat(price));
     const event = { title, price, description, date };
+    console.log(event);
     dispatch(createEvent(event));
   };
   return (
     <>
-      <Button variant='primary' onClick={handleShow} style={{ margin: '20px' }}>
-        Launch static backdrop modal
-      </Button>
+      {userInfo && (
+        <Button
+          variant='primary'
+          onClick={handleShow}
+          style={{ margin: '20px' }}
+        >
+          Launch static backdrop modal
+        </Button>
+      )}
 
       <Modal
         show={show}
@@ -59,7 +84,7 @@ const EventPage = () => {
                 type='number'
                 placeholder='Enter the price for attending your event'
                 value={price}
-                onChange={(e) => setPrice(e.target.value)}
+                onChange={(e) => setPrice(+e.target.value)}
               />
             </Form.Group>
 
@@ -96,6 +121,19 @@ const EventPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {events.map((event) => (
+        <Row sm={12} md={6} xl={4}>
+          <Col>
+            <Card style={{ width: '18rem', margin: 30 }}>
+              <Card.Body>
+                <Card.Title>{event.title}</Card.Title>
+                <Card.Text>{event.description}</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      ))}
     </>
   );
 };
