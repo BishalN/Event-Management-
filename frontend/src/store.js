@@ -6,7 +6,9 @@ import { userLoginReducer, userRegisterReducer } from './reducers/auth';
 import {
   createEventReducer,
   getEventsReducer,
+  getBookingsReducer,
   bookEventReducer,
+  cancelBookingReducer,
 } from './reducers/events';
 
 const reducer = combineReducers({
@@ -15,6 +17,8 @@ const reducer = combineReducers({
   createEvent: createEventReducer,
   getEvents: getEventsReducer,
   bookEvent: bookEventReducer,
+  getBookings: getBookingsReducer,
+  cancelBooking: cancelBookingReducer,
 });
 
 const initialState = {};

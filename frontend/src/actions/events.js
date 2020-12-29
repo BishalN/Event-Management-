@@ -10,6 +10,12 @@ import {
   BOOK_EVENT_FAIL,
   BOOK_EVENT_REQUEST,
   BOOK_EVENT_SUCCESS,
+  GET_BOOKINGS_FAIL,
+  GET_BOOKINGS_REQUEST,
+  GET_BOOKINGS_SUCCESS,
+  CANCEL_BOOKING_FAIL,
+  CANCEL_BOOKING_REQUEST,
+  CANCEL_BOOKING_SUCCESS,
 } from '../constants/eventConstants';
 
 export const createEvent = (event) => async (dispatch, getState) => {
@@ -19,7 +25,6 @@ export const createEvent = (event) => async (dispatch, getState) => {
     userLogin: { userInfo },
   } = getState();
 
-  console.log(userInfo.data.login.token);
   try {
     dispatch({ type: CREATE_EVENT_REQUEST });
 
@@ -104,8 +109,11 @@ export const bookEvent = (eventId) => async (dispatch, getState) => {
       data: {
         query: `
         mutation {
-          bookEvent(eventId:{ID:"${eventId}"}){
-           _id
+          bookEvent(eventId:"${eventId}"){
+            _id
+            event{title,description}
+            createdAt
+          }
         }
         `,
       },
@@ -114,5 +122,68 @@ export const bookEvent = (eventId) => async (dispatch, getState) => {
     dispatch({ type: BOOK_EVENT_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: BOOK_EVENT_FAIL, payload: error });
+  }
+};
+
+export const getBookings = () => async (dispatch, getState) => {
+  try {
+    dispatch({ type: GET_BOOKINGS_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const { data } = await axios({
+      method: 'POST',
+      url: 'http://localhost:8000/graphql',
+      headers: {
+        Authorization: 'Bearer ' + userInfo.data.login.token,
+      },
+      data: {
+        query: `
+        query {
+          bookings {
+            _id
+            createdAt
+          }
+        }
+          `,
+      },
+    });
+
+    dispatch({ type: GET_BOOKINGS_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: GET_BOOKINGS_FAIL, payload: error });
+  }
+};
+
+export const cancelBooking = (bookingId) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: CANCEL_BOOKING_REQUEST });
+
+    const {
+      userLogin: { userInfo },
+    } = getState();
+
+    const { data } = await axios({
+      method: 'POST',
+      url: 'http://localhost:8000/graphql',
+      headers: {
+        Authorization: 'Bearer ' + userInfo.data.login.token,
+      },
+      data: {
+        query: `
+        mutation {
+          cancelBooking(bookingId:"${bookingId}"){
+            _id
+          }
+        }
+          `,
+      },
+    });
+
+    dispatch({ type: CANCEL_BOOKING_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: CANCEL_BOOKING_FAIL, payload: error });
   }
 };

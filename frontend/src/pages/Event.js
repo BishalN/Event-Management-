@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Form, Row } from 'react-bootstrap';
+import { Button, Modal, Form, Row, Card, Container } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createEvent, getEvents } from '../actions/events';
-import EventItemCard from '../components/EventItemCard';
+import { createEvent, getEvents, bookEvent } from '../actions/events';
+import Messages from '../components/Messages';
 
 const EventPage = () => {
   const dispatch = useDispatch();
@@ -16,6 +16,13 @@ const EventPage = () => {
 
   const getEventsFromStore = useSelector((state) => state.getEvents);
   const { events: fetchedEvents } = getEventsFromStore;
+
+  const bookEvents = useSelector((state) => state.bookEvent);
+  const { success } = bookEvents;
+
+  const bookingHandler = (eventId) => {
+    dispatch(bookEvent(eventId));
+  };
 
   const [show, setShow] = useState(false);
   const [title, setTitle] = useState('');
@@ -53,6 +60,12 @@ const EventPage = () => {
         >
           Create an Event
         </Button>
+      )}
+
+      {success && (
+        <Container>
+          <Messages variant='success'>Event booked successfully</Messages>
+        </Container>
       )}
 
       <Modal
@@ -122,12 +135,19 @@ const EventPage = () => {
 
       <Row sm={12} md={6} xl={4} className='m-2'>
         {events.map((event) => (
-          <EventItemCard
-            event={event}
-            isCreator={
-              userInfo && event.creator._id === userInfo.data.login.userId
-            }
-          />
+          <Card border='primary' style={{ width: '18rem', margin: '5px' }}>
+            <Card.Header>{event.title}</Card.Header>
+            <Card.Body>
+              <Card.Title>{event.description}</Card.Title>
+              <Card.Text>{event.date}</Card.Text>
+              <Card.Text>${event.price}</Card.Text>
+            </Card.Body>
+            {userInfo && (
+              <Button className='m-3' onClick={() => bookingHandler(event._id)}>
+                Book this event
+              </Button>
+            )}
+          </Card>
         ))}
       </Row>
     </>

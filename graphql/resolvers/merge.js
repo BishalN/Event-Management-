@@ -32,6 +32,7 @@ export const events = async (eventIds) => {
 };
 
 export const singlEvent = async (eventId) => {
+  console.log(eventId);
   try {
     const event = await Event.findById(eventId);
     return transformEvent(event);

@@ -30,7 +30,7 @@ export default {
       throw error;
     }
   },
-  cancelBooking: async (args) => {
+  cancelBooking: async (args, req) => {
     if (!req.isAuth) throw new Error('UnAuthorized!');
     const booking = await Booking.findById(args.bookingId).populate('event');
     const event = transformEvent(booking.event);
